@@ -50,6 +50,8 @@ def evaluate_clause(clause, truth_values):
     else:
         return truth_values[clause.strip()]
 
+# Checks all posible combinations of truth tables by iterating through all combinations
+# For the Pseudocode TT-CHECK-ALL this is that segment 
 def evaluate_truth_table(KB, q):
     literals = get_literals(KB)
     for values in itertools.product([False, True], repeat=len(literals)):
@@ -59,13 +61,14 @@ def evaluate_truth_table(KB, q):
                 return True
     return False
 
-def count_models(KB):
+def count_models(KB, q):
     literals = get_literals(KB)
     model_count = 0
     for values in itertools.product([False, True], repeat=len(literals)):
         truth_values = dict(zip(literals, values))
         if all(evaluate_clause(clause, truth_values) for clause in KB):
-            model_count += 1
+            if truth_values[q]:   
+                model_count += 1
     return model_count
 
 def forward_chaining(KB, q):
@@ -112,11 +115,11 @@ def main():
     if method_of_inference == 'tt':  # Truth Table method
         result = evaluate_truth_table(KB, q)
         if result:
-            print("YES:", count_models(KB))
+            print("YES:", count_models(KB, q))
         else:
             print("NO")
 
-    if method_of_inference == "fc":  # Forward Chaining
+    elif method_of_inference == "fc":  # Forward Chaining
         result = forward_chaining(KB, q)
         print("Result:", result)
     else:
