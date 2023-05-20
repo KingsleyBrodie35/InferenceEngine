@@ -20,7 +20,7 @@ def read_file_data(data):
 
     return KB, q
 
-
+# Function to get all unique literals from the Knowledge Base (KB)
 def get_literals(KB):
 
     # Initialize an empty set to store unique literals
@@ -39,7 +39,7 @@ def get_literals(KB):
 
     return list(literals)
 
-
+#Function to evaluate a clause by mapping the of literals to their truth values.
 def evaluate_clause(clause, truth_values):
     if '=>' in clause:
         antecedent, consequent = clause.split('=>')
@@ -59,11 +59,18 @@ def evaluate_truth_table(KB, q):
                 return True
     return False
 
+#This counts the number of models (truth assignments) for which the KB and q are both true.
 def count_models(KB, q):
+    
+    # Get all unique literals from the Knowledge Base
     literals = get_literals(KB)
+
     model_count = 0
+
     for values in itertools.product([False, True], repeat=len(literals)):
+        # Map each literal to a truth value
         truth_values = dict(zip(literals, values))
+
         if all(evaluate_clause(clause, truth_values) for clause in KB):
             if truth_values[q]:   
                 model_count += 1
