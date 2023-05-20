@@ -16,7 +16,7 @@ def read_file_data(data):
     q = transformation[3]
 
     KB = KB.split(';')[:-1]  # Split by ';' and remove the last empty element
-    KB = [i.strip() for i in KB]  # Remove leading/trailing whitespaces
+    KB = [i.replace(" ", "") for i in KB]  # Remove all whitespaces
 
     return KB, q
 
@@ -52,24 +52,39 @@ def evaluate_clause(clause, truth_values):
 
 # Checks all posible combinations of truth tables by iterating through all combinations
 # For the Pseudocode TT-CHECK-ALL this is that segment 
-def evaluate_truth_table(KB, q):
-    literals = get_literals(KB)
-    for values in itertools.product([False, True], repeat=len(literals)):
-        truth_values = dict(zip(literals, values))
+def evaluate_truth_table_dfs(KB, q, literals=None, truth_values=None):
+    if literals is None:
+        literals = get_literals(KB)
+    if truth_values is None:
+        truth_values = {}
+    if not literals:
         if all(evaluate_clause(clause, truth_values) for clause in KB):
-            if truth_values[q]:
-                return True
-    return False
+            return truth_values.get(q, False)
+        return False
+    else:
+        literal = literals[0]
+        truth_values[literal] = False
+        if evaluate_truth_table_dfs(KB, q, literals[1:], truth_values):
+            return True
+        truth_values[literal] = True
+        return evaluate_truth_table_dfs(KB, q, literals[1:], truth_values)
 
-def count_models(KB, q):
-    literals = get_literals(KB)
-    model_count = 0
-    for values in itertools.product([False, True], repeat=len(literals)):
-        truth_values = dict(zip(literals, values))
+
+def count_models_dfs(KB, q, literals=None, truth_values=None):
+    if literals is None:
+        literals = get_literals(KB)
+    if truth_values is None:
+        truth_values = {}
+    if not literals:
         if all(evaluate_clause(clause, truth_values) for clause in KB):
-            if truth_values[q]:   
-                model_count += 1
-    return model_count
+            return int(truth_values.get(q, False))
+        return 0
+    else:
+        literal = literals[0]
+        truth_values[literal] = False
+        count = count_models_dfs(KB, q, literals[1:], truth_values)
+        truth_values[literal] = True
+        return count + count_models_dfs(KB, q, literals[1:], truth_values)
 
 def forward_chaining(KB, q):
     proposition_queue = []
@@ -113,9 +128,9 @@ def main():
     print("\nQuery:", q)
 
     if method_of_inference == 'tt':  # Truth Table method
-        result = evaluate_truth_table(KB, q)
+        result = evaluate_truth_table_dfs(KB, q)
         if result:
-            print("YES:", count_models(KB, q))
+            print("YES:", count_models_dfs(KB, q))
         else:
             print("NO")
 
