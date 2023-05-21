@@ -170,14 +170,12 @@ def truth_value(KB, knownProps, q, visited):
 
 
 def main():
-    # if len(sys.argv) != 3:
-    #     print("Usage: iengine <method of inference> <filename>")
-    #     sys.exit(1)
+    if len(sys.argv) != 3:
+        print("Usage: iengine <method of inference> <filename>")
+        sys.exit(1)
 
-    # data = sys.argv[2]
-    # method_of_inference = sys.argv[1].lower()
-    data = "test_HornKB.txt"
-    method_of_inference = "bc"
+    data = sys.argv[2]
+    method_of_inference = sys.argv[1].lower()
     KB, q = read_file_data(data)
 
     print("\nKB:", KB)
