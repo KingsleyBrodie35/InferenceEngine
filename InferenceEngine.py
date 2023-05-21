@@ -3,6 +3,7 @@ import itertools
 
 # First step is to extract data from the file in similar way to first assignment
 
+
 def read_file_data(data):
     file = open(data, 'r')  # Open the file
 
@@ -21,6 +22,8 @@ def read_file_data(data):
     return KB, q
 
 # Function to get all unique literals from the Knowledge Base (KB)
+
+
 def get_literals(KB):
 
     # Initialize an empty set to store unique literals
@@ -29,9 +32,10 @@ def get_literals(KB):
     # Loop through each clause in the knowledge base
     for clause in KB:
 
-        # If clause is an implication 
+        # If clause is an implication
         if '=>' in clause:
-            antecedent, consequent = clause.split('=>') #split into antecedent and consequent
+            # split into antecedent and consequent
+            antecedent, consequent = clause.split('=>')
             literals.update(i.strip() for i in antecedent.split('&'))
             literals.add(consequent.strip())
         else:
@@ -39,7 +43,9 @@ def get_literals(KB):
 
     return list(literals)
 
-#Function to evaluate a clause by mapping the of literals to their truth values.
+# Function to evaluate a clause by mapping the of literals to their truth values.
+
+
 def evaluate_clause(clause, truth_values):
     if '=>' in clause:
         antecedent, consequent = clause.split('=>')
@@ -49,7 +55,9 @@ def evaluate_clause(clause, truth_values):
         return truth_values[clause.strip()]
 
 # Checks all posible combinations of truth tables by iterating through all combinations
-# For the Pseudocode TT-CHECK-ALL this is that segment 
+# For the Pseudocode TT-CHECK-ALL this is that segment
+
+
 def evaluate_truth_table(KB, q):
     literals = get_literals(KB)
     for values in itertools.product([False, True], repeat=len(literals)):
@@ -59,9 +67,11 @@ def evaluate_truth_table(KB, q):
                 return True
     return False
 
-#This counts the number of models (truth assignments) for which the KB and q are both true.
+# This counts the number of models (truth assignments) for which the KB and q are both true.
+
+
 def count_models(KB, q):
-    
+
     # Get all unique literals from the Knowledge Base
     literals = get_literals(KB)
 
@@ -72,9 +82,10 @@ def count_models(KB, q):
         truth_values = dict(zip(literals, values))
 
         if all(evaluate_clause(clause, truth_values) for clause in KB):
-            if truth_values[q]:   
+            if truth_values[q]:
                 model_count += 1
     return model_count
+
 
 def forward_chaining(KB, q):
     proposition_queue = []
@@ -90,28 +101,83 @@ def forward_chaining(KB, q):
                 symbolCount["{}".format(prop)] = len(antecedents)
             else:
                 symbolCount["{}".format(prop)] = 1
+    result = False
+    visited = []
     while len(proposition_queue) != 0:
         trueProp = proposition_queue.pop(0)
+        visited.append(trueProp)
         for prop in KB:
             if '=>' in prop:
-                if prop == q:
-                    return True
+                if trueProp == q:
+                    print("YES: ", end="")
+                    for propo in visited:
+                        print(f"{propo}, ", end="")
+                    result = True
+                    break
                 antecedent, consequent = prop.split('=>')
                 if trueProp in antecedent:
                     symbolCount["{}".format(prop)] -= 1
                     if symbolCount["{}".format(prop)] == 0:
-                        proposition_queue.append(consequent)
+                        proposition_queue.append(consequent.strip())
+    if (result == False):
+        print("NO")
+
+
+def backward_chaining(KB, q):
+    knownProps = {}
+    for prop in KB:
+        if len(prop) <= 2:
+            knownProps[prop] = True
+        else:
+            antecedent, consequent = prop.split('=>')
+            knownProps[consequent.strip()] = False
+    visited = []
+    result = truth_value(KB, knownProps, q, visited)
+    if type(result) == tuple:
+        if False in result:
+            print("NO")
+        else:
+            print("YES: ", end="")
+            for prop in visited:
+                print(f"{prop}, ", end="")
+    if type(result) == bool:
+        if result == False:
+            print("NO")
+        else:
+            print("YES: ", end="")
+            for prop in visited:
+                print(f"{prop}, ", end="")
+
+
+def truth_value(KB, knownProps, q, visited):
+    visited.append(q)
+    if q not in knownProps:
+        return False
+    if knownProps[q] == True:
+        return True
+
+    for prop in KB:
+        if '=>' in prop:
+            antecedent, consequent = prop.split('=>')
+            if (consequent.strip() == q):
+                antecedent = antecedent.split('&')
+                if len(antecedent) == 2:
+                    return truth_value(KB, knownProps, antecedent[0].strip(), visited), truth_value(KB, knownProps, antecedent[1].strip(), visited)
+                else:
+                    return truth_value(KB, knownProps, antecedent[0].strip(), visited)
+
     return False
 
 
 def main():
-    if len(sys.argv) != 3:
-        print("Usage: iengine <method of inference> <filename>")
-        sys.exit(1)
+    # if len(sys.argv) != 3:
+    #     print("Usage: iengine <method of inference> <filename>")
+    #     sys.exit(1)
 
-    data = sys.argv[2]
-    method_of_inference = sys.argv[1].lower()
-
+    # data = sys.argv[2]
+    # method_of_inference = sys.argv[1].lower()
+    data = "test_HornKB.txt"
+    method_of_inference = "bc"
     KB, q = read_file_data(data)
 
     print("\nKB:", KB)
@@ -126,9 +192,11 @@ def main():
 
     elif method_of_inference == "fc":  # Forward Chaining
         result = forward_chaining(KB, q)
-        print("Result:", result)
+    elif method_of_inference == "bc":
+        result = backward_chaining(KB, q)
     else:
         print("Unknown method of inference.")
+
 
 if __name__ == "__main__":
     main()
