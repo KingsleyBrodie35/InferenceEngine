@@ -44,8 +44,6 @@ def get_literals(KB):
     return list(literals)
 
 # Function to evaluate a clause by mapping the of literals to their truth values.
-
-
 def evaluate_clause(clause, truth_values):
     if '=>' in clause:
         antecedent, consequent = clause.split('=>')
@@ -56,8 +54,6 @@ def evaluate_clause(clause, truth_values):
 
 # Checks all posible combinations of truth tables by iterating through all combinations
 # For the Pseudocode TT-CHECK-ALL this is that segment
-
-
 def evaluate_truth_table(KB, q):
     literals = get_literals(KB)
     for values in itertools.product([False, True], repeat=len(literals)):
@@ -68,8 +64,6 @@ def evaluate_truth_table(KB, q):
     return False
 
 # This counts the number of models (truth assignments) for which the KB and q are both true.
-
-
 def count_models(KB, q):
 
     # Get all unique literals from the Knowledge Base
@@ -190,7 +184,7 @@ def main():
 
     elif method_of_inference == "fc":  # Forward Chaining
         result = forward_chaining(KB, q)
-    elif method_of_inference == "bc":
+    elif method_of_inference == "bc":  # Backward Chaining
         result = backward_chaining(KB, q)
     else:
         print("Unknown method of inference.")
