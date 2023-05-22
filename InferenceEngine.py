@@ -56,12 +56,13 @@ def evaluate_clause(clause, truth_values):
 # For the Pseudocode TT-CHECK-ALL this is that segment
 def evaluate_truth_table(KB, q):
     literals = get_literals(KB)
+    KB_true_models = [] 
     for values in itertools.product([False, True], repeat=len(literals)):
         truth_values = dict(zip(literals, values))
         if all(evaluate_clause(clause, truth_values) for clause in KB):
-            if truth_values[q]:
-                return True
-    return False
+            KB_true_models.append(truth_values)
+    return all(model[q] for model in KB_true_models)
+
 
 # This counts the number of models (truth assignments) for which the KB and q are both true.
 def count_models(KB, q):
