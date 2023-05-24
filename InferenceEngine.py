@@ -44,6 +44,8 @@ def get_literals(KB):
     return list(literals)
 
 # Function to evaluate a clause by mapping the of literals to their truth values.
+
+
 def evaluate_clause(clause, truth_values):
     if '=>' in clause:
         antecedent, consequent = clause.split('=>')
@@ -54,9 +56,11 @@ def evaluate_clause(clause, truth_values):
 
 # Checks all posible combinations of truth tables by iterating through all combinations
 # For the Pseudocode TT-CHECK-ALL this is that segment
+
+
 def evaluate_truth_table(KB, q):
     literals = get_literals(KB)
-    KB_true_models = [] 
+    KB_true_models = []
     for values in itertools.product([False, True], repeat=len(literals)):
         truth_values = dict(zip(literals, values))
         if all(evaluate_clause(clause, truth_values) for clause in KB):
@@ -165,13 +169,17 @@ def truth_value(KB, knownProps, q, visited):
 
 
 def main():
-    if len(sys.argv) != 3:
+    if len(sys.argv) != 4 or sys.argv[1] != "iengine":
         print("Usage: iengine <method of inference> <filename>")
         sys.exit(1)
 
-    data = sys.argv[2]
-    method_of_inference = sys.argv[1].lower()
-    KB, q = read_file_data(data)
+    data = sys.argv[3]
+    method_of_inference = sys.argv[2].lower()
+    try:
+        KB, q = read_file_data(data)
+    except:
+        print("unkown filename")
+        sys.exit(1)
 
     print("\nKB:", KB)
     print("\nQuery:", q)
