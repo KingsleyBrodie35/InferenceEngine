@@ -87,32 +87,31 @@ def count_models(KB, q):
 
 
 def forward_chaining(KB, q):
-    proposition_queue = []
-    for prop in KB:
-        if len(prop) <= 2:
-            proposition_queue.append(prop)
-    symbolCount = {}
-    for prop in KB:
-        if '=>' in prop:
-            antecedent, consequent = prop.split('=>')
-            if '&' in antecedent:
-                antecedents = antecedent.split('&')
-                symbolCount["{}".format(prop)] = len(antecedents)
-            else:
-                symbolCount["{}".format(prop)] = 1
+    # Find all true values
+    proposition_queue = prop_queue(KB)
+    # Find the count associated with each proposition
+    symbolCount = symbol_Count(KB)
     result = False
     visited = []
+    # Iterate over true values
     while len(proposition_queue) != 0:
         trueProp = proposition_queue.pop(0)
         visited.append(trueProp)
+        if trueProp == q:
+            print("YES: ", end="")
+            # format output
+            symbols = ""
+            for propo in visited:
+                symbols += f"{propo}, "
+            symbolList = list(symbols)
+            symbolList[len(symbolList) - 1] = ""
+            symbolList[len(symbolList) - 2] = ""
+            for c in symbolList:
+                print(c, end="")
+            result = True
+            break
         for prop in KB:
             if '=>' in prop:
-                if trueProp == q:
-                    print("YES: ", end="")
-                    for propo in visited:
-                        print(f"{propo}, ", end="")
-                    result = True
-                    break
                 antecedent, consequent = prop.split('=>')
                 if trueProp in antecedent:
                     symbolCount["{}".format(prop)] -= 1
@@ -122,8 +121,31 @@ def forward_chaining(KB, q):
         print("NO")
 
 
+def prop_queue(KB):
+    proposition_queue = []
+    for prop in KB:
+        if len(prop) <= 2:
+            proposition_queue.append(prop)
+    return proposition_queue
+
+
+def symbol_Count(KB):
+    symbolCount = {}
+    for prop in KB:
+        if '=>' in prop:
+            antecedent, consequent = prop.split('=>')
+            # find symbol count and add to dict
+            if '&' in antecedent:
+                antecedents = antecedent.split('&')
+                symbolCount["{}".format(prop)] = len(antecedents)
+            else:
+                symbolCount["{}".format(prop)] = 1
+    return symbolCount
+
+
 def backward_chaining(KB, q):
     knownProps = {}
+    # add proposition symbols to dict with assocaited True/False vals
     for prop in KB:
         if len(prop) <= 2:
             knownProps[prop] = True
@@ -169,12 +191,13 @@ def truth_value(KB, knownProps, q, visited):
 
 
 def main():
-    if len(sys.argv) != 4 or sys.argv[1] != "iengine":
+    if len(sys.argv) != 3:
         print("Usage: iengine <method of inference> <filename>")
         sys.exit(1)
 
-    data = sys.argv[3]
-    method_of_inference = sys.argv[2].lower()
+    data = sys.argv[2]
+    method_of_inference = sys.argv[1].lower()
+
     try:
         KB, q = read_file_data(data)
     except:
