@@ -145,7 +145,6 @@ def symbol_Count(KB):
 
 def backward_chaining(KB, q):
     knownProps = {}
-    # add proposition symbols to dict with assocaited True/False vals
     for prop in KB:
         if len(prop) <= 2:
             knownProps[prop] = True
@@ -159,15 +158,13 @@ def backward_chaining(KB, q):
             print("NO")
         else:
             print("YES: ", end="")
-            for prop in visited:
-                print(f"{prop}, ", end="")
+            print(', '.join(visited))
     if type(result) == bool:
         if result == False:
             print("NO")
         else:
             print("YES: ", end="")
-            for prop in visited:
-                print(f"{prop}, ", end="")
+            print(', '.join(visited))
 
 
 def truth_value(KB, knownProps, q, visited):
@@ -197,7 +194,6 @@ def main():
 
     data = sys.argv[2]
     method_of_inference = sys.argv[1].lower()
-
     try:
         KB, q = read_file_data(data)
     except:

@@ -12,7 +12,7 @@
             "program": "${file}",
             "console": "integratedTerminal",
             "justMyCode": true,
-            "args": ["resoltion", "test_genericKB.txt"]
+            "args": ["tt", "test_genericK.txt"]
         }
     ]
 }
